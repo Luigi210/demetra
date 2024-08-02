@@ -1,0 +1,52 @@
+services:
+  db:
+    container_name: postgres
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - /Library/PostgreSQL/16/data
+    ports:
+      - '5431:5432'
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    ports:
+      - 5050:80
+    depends_on:
+      - db
+
+  app:
+    container_name: nestjs
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '3000:3000'
+    environment:
+      DB_HOST: '172.17.0.1'
+      DB_PORT: 5431
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+    depends_on:
+      - db
+    command: npm run start:dev
+
+  redis:
+    image: 'redis:latest'
+    container_name: redis
+    ports:
+      - '6379:6379'

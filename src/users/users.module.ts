@@ -7,13 +7,14 @@ import { BullModule } from '@nestjs/bull';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { UserProcessor } from './user.processor';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
+        host: '172.17.0.1',
         port: 6379,
       },
     }),
@@ -24,6 +25,7 @@ import { UserProcessor } from './user.processor';
       route: '/queue',
       adapter: ExpressAdapter,
     }),
+    CacheModule.register(),
   ],
   controllers: [UsersController],
   providers: [UsersService, UserProcessor],
